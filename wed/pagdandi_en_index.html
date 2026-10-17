@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagdandi - Breaking News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #d32f2f;
+            --secondary: #f57c00;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        body.dark-mode {
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+        }
+        
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            margin: 0 24px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #f0f0f0;
+        }
+        
+        .breaking-news {
+            background: var(--primary);
+            color: white;
+            padding: 10px 24px;
+            overflow: hidden;
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .breaking-text {
+            white-space: nowrap;
+            animation: scroll 30s linear infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .nav {
+            background: white;
+            padding: 12px 24px;
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 56px;
+            z-index: 99;
+        }
+        
+        body.dark-mode .nav {
+            background: #252525;
+            border-color: #444;
+        }
+        
+        .nav-item {
+            padding: 8px 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .news-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        body.dark-mode .news-card {
+            background: #252525;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .card-content {
+            padding: 16px;
+        }
+        
+        .card-category {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .card-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        body.dark-mode .card-desc {
+            color: #aaa;
+        }
+        
+        .card-meta {
+            font-size: 11px;
+            color: #999;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        body.dark-mode .card-meta {
+            border-color: #444;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        body.dark-mode .modal-content {
+            background: #252525;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            float: right;
+        }
+        
+        .footer {
+            background: #222;
+            color: white;
+            padding: 32px 24px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        body.dark-mode .footer {
+            background: #0a0a0a;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .search-box {
+                margin: 0;
+                width: 100%;
+            }
+            
+            .nav {
+                top: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">📰 Pagdandi</div>
+        <input type="text" class="search-box" id="search" placeholder="Search news...">
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="toggleDarkMode()">🌙</button>
+            <a href="pagdandi_complete_admin.html" class="btn btn-primary">⚙️ Admin</a>
+        </div>
+    </div>
+    
+    <!-- BREAKING NEWS -->
+    <div class="breaking-news">
+        <span class="breaking-text">
+            <strong>🔴 BREAKING: </strong>
+            <span id="breakingText">Loading news...</span>
+        </span>
+    </div>
+    
+    <!-- NAVIGATION -->
+    <div class="nav" id="nav"></div>
+    
+    <!-- CONTAINER -->
+    <div class="container">
+        <div class="news-grid" id="newsGrid"></div>
+    </div>
+    
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>&copy; 2024 Pagdandi News. All rights reserved.</p>
+        <p>Trusted news for your community</p>
+    </div>
+    
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script>
+        let articles = [];
+        let categories = [];
+        let breakingNews = [];
+        let currentCategory = 'All';
+        
+        function init() {
+            articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            categories = JSON.parse(localStorage.getItem('categories') || '[]');
+            breakingNews = JSON.parse(localStorage.getItem('breakingNews') || '[]');
+            
+            if (articles.length === 0) {
+                loadDefaultData();
+            }
+            
+            if (categories.length === 0) {
+                categories = [
+                    {id: 1, name: 'Desh', emoji: '🏠'},
+                    {id: 2, name: 'Sports', emoji: '🏆'},
+                    {id: 3, name: 'Business', emoji: '💼'},
+                    {id: 4, name: 'Entertainment', emoji: '🎬'},
+                    {id: 5, name: 'Technology', emoji: '💻'},
+                    {id: 6, name: 'Health', emoji: '🏥'}
+                ];
+            }
+            
+            renderNav();
+            renderArticles();
+            updateBreakingNews();
+        }
+        
+        function loadDefaultData() {
+            categories = [
+                {id: 1, name: 'Desh', emoji: '🏠'},
+                {id: 2, name: 'Sports', emoji: '🏆'},
+                {id: 3, name: 'Business', emoji: '💼'},
+                {id: 4, name: 'Entertainment', emoji: '🎬'},
+                {id: 5, name: 'Technology', emoji: '💻'},
+                {id: 6, name: 'Health', emoji: '🏥'}
+            ];
+            
+            articles = [
+                {id: 1, title: 'New Metro Line Opens in City Center', category: 'Desh', date: '2024-10-17', desc: 'The long-awaited metro extension finally opens to the public after 2 years of construction', content: 'The new metro line connecting the city center to the airport opened today with great fanfare. Thousands of residents lined up to try the modern rail service. The project cost 500 crores and will reduce traffic congestion significantly. Officials expect 2 lakh passengers daily once fully operational.', views: 2450, likes: 340},
+                {id: 2, title: 'Government Announces Subsidy for Farmers', category: 'Desh', date: '2024-10-16', desc: 'Agricultural ministry extends crop subsidy scheme for another year', content: 'The government announced a new agricultural subsidy scheme providing 50% discount on fertilizers. This will benefit over 5 million farmers across the country. The scheme will be implemented from November 2024. Farmers can register online at the agriculture ministry website.', views: 1890, likes: 280},
+                {id: 3, title: 'Water Crisis: City Faces Acute Shortage', category: 'Desh', date: '2024-10-15', desc: 'Municipal authorities declare water emergency as reservoirs hit critical levels', content: 'With water levels at only 15%, the city administration has imposed water rationing. Hospitals and schools have been exempted. The civic body is planning emergency supplies from neighboring districts. A task force has been formed to address the crisis. Citizens are urged to conserve water.', views: 3210, likes: 620},
+                {id: 4, title: 'Local School Wins National Science Competition', category: 'Desh', date: '2024-10-14', desc: 'Students from Sacred Heart School claim first prize in national STEM competition', content: 'A team of 5 students from Sacred Heart School won the National Science Fair with their innovative water purification device. They will receive a 5 lakh rupee prize and a trip to IIT Delhi. The school principal said this achievement inspires future scientists.', views: 1560, likes: 450},
+                
+                {id: 5, title: 'Cricket Team Wins Series Against Pakistan', category: 'Sports', date: '2024-10-17', desc: 'India clinches 3-match T20 series with thrilling 5-run victory', content: 'In a nail-biting finish, India defeated Pakistan by 5 runs in the final T20 match. The Indian captain scored a brilliant century. This victory marks India\'s fourth consecutive series win. The crowd at the stadium was electrified as the final wicket fell.', views: 5670, likes: 1240},
+                {id: 6, title: 'Marathon Event Draws Record Participants', category: 'Sports', date: '2024-10-16', desc: 'City hosts largest marathon with 15000 runners participating', content: 'The annual city marathon saw record participation with 15,000 runners from across the country. The event raised 2 crores for charity. A local teenager completed the marathon in a new city record time of 2 hours 12 minutes. The event was flagged off by the state sports minister.', views: 2340, likes: 520},
+                {id: 7, title: 'Football League: Championship Finals Announced', category: 'Sports', date: '2024-10-14', desc: 'Top teams battle for ultimate glory in upcoming finals', content: 'The Indian Super League announced its championship finals with 4 top teams competing for the title. Matches will be held over 2 weeks starting October 25. Tickets are now available online. The winning team will get 10 crores prize money.', views: 2890, likes: 680},
+                
+                {id: 8, title: 'Tech Startup Raises $5 Million in Funding', category: 'Technology', date: '2024-10-17', desc: 'Local fintech startup secures Series A investment from international investors', content: 'TechPayPro, a local payment startup, has raised $5 million from Silicon Valley investors. The funds will be used for expansion to 5 new countries. The company currently processes $100 crores monthly. CEO says the investment validates their business model.', views: 1850, likes: 390},
+                {id: 9, title: 'AI Revolution: New Chatbot Breaks Records', category: 'Technology', date: '2024-10-15', desc: 'Artificial intelligence chatbot achieves 99% accuracy in problem solving', content: 'Scientists unveiled a new AI system that solves complex problems with 99% accuracy. It can write code, answer questions, and create content. The system was trained on 10 billion documents. It will be available as a free service from next month.', views: 4560, likes: 920},
+                {id: 10, title: 'Smartphone Prices Drop as Competition Heats Up', category: 'Technology', date: '2024-10-13', desc: 'Latest flagship phones available at 30% discount due to market competition', content: 'Major smartphone brands are slashing prices as competition increases. The latest flagship phones are now 30% cheaper than launch price. This is good news for consumers planning to upgrade. Budget phones under 15000 are the fastest selling category.', views: 3210, likes: 580},
+                
+                {id: 11, title: 'Bollywood Release Breaks Box Office Records', category: 'Entertainment', date: '2024-10-17', desc: 'New action blockbuster earns 100 crores on opening weekend', content: 'The highly anticipated action film "Thunder Strike" earned 100 crores in its opening weekend. The film stars top Bollywood actors and features stunning cinematography. Critics praised the film\'s story and action sequences. It\'s predicted to cross 300 crores by end of its run.', views: 4120, likes: 890},
+                {id: 12, title: 'Music Festival Announces Star-Studded Line-up', category: 'Entertainment', date: '2024-10-15', desc: 'International and local artists to perform at annual music festival', content: 'The annual music festival announced its line-up with 50 artists including international stars. The 3-day event will feature rock, pop, and indie genres. Tickets start at 500 rupees. The festival is expected to attract 50,000 visitors. Food stalls and craft vendors will also participate.', views: 2670, likes: 450},
+                {id: 13, title: 'Web Series Gets International Recognition', category: 'Entertainment', date: '2024-10-12', desc: 'Indian web series wins award at international film festival', content: 'The popular Indian web series "City Dreams" won Best Series award at the Berlin International Film Festival. The show was praised for its unique storytelling and strong performances. The cast thanked their fans for the support. This is a major milestone for Indian digital content.', views: 1980, likes: 340},
+                
+                {id: 14, title: 'New Hospital Opens Advanced Cancer Care Center', category: 'Health', date: '2024-10-16', desc: 'State-of-the-art facility offers latest cancer treatment options', content: 'A new 200-bed hospital opened with an advanced cancer care center. The facility has latest technology for diagnosis and treatment. 50 specialized doctors from abroad are working there. The hospital will provide affordable treatment to poor patients. Free health camps will be held weekly.', views: 2340, likes: 510},
+                {id: 15, title: 'Health Ministry Launches Vaccination Drive', category: 'Health', date: '2024-10-14', desc: 'Free vaccination camps setup across city for preventive healthcare', content: 'The health ministry launched a massive vaccination drive covering 100 locations. Free vaccines for flu, typhoid, and hepatitis will be provided. Children and senior citizens are priority. The drive will run for 2 months. Call 1234567890 to book your vaccination slot.', views: 1670, likes: 280},
+                
+                {id: 16, title: 'Business Conference Attracts Top Entrepreneurs', category: 'Business', date: '2024-10-17', desc: 'Annual business summit brings together industry leaders and startups', content: 'The annual business conference attracted 5000 participants including CEOs and entrepreneurs. Keynote speeches focused on innovation and growth. Startup pitching competition had 100 entries. Winning startup received 50 lakh rupee investment. Networking sessions lasted till late evening.', views: 1450, likes: 320},
+                {id: 17, title: 'Stock Market Reaches All-Time High', category: 'Business', date: '2024-10-15', desc: 'BSE index crosses 70000 mark amid strong investor confidence', content: 'The Bombay Stock Exchange reached an all-time high of 70,500 points today. Investors are optimistic about economic growth. Tech stocks led the rally with 5% gains. Mutual fund subscriptions increased by 30% this month. Analysts predict further gains in coming months.', views: 2890, likes: 640},
+                {id: 18, title: 'Manufacturing Sector Shows Strong Growth', category: 'Business', date: '2024-10-13', desc: 'Industrial output increases 12% year-on-year amid government support', content: 'The manufacturing sector grew 12% this quarter, the highest in 3 years. Government incentives and infrastructure improvements are driving growth. 50,000 new jobs were created in manufacturing. Exports increased by 15%. Industry leaders are optimistic about future prospects.', views: 1560, likes: 290}
+            ];
+            
+            breakingNews = [
+                '🔴 Prime Minister to visit city tomorrow for development project launch',
+                '🔴 Major traffic jam on highway due to accident - use alternate route',
+                '🔴 Weather alert: Heavy rain expected in evening hours',
+                '🔴 RBI announces interest rate cut of 0.5%',
+                '🔴 International sports team arriving in city for tournament'
+            ];
+            
+            localStorage.setItem('articles', JSON.stringify(articles));
+            localStorage.setItem('categories', JSON.stringify(categories));
+            localStorage.setItem('breakingNews', JSON.stringify(breakingNews));
+        }
+        
+        function renderNav() {
+            const nav = document.getElementById('nav');
+            nav.innerHTML = '<div class="nav-item active" onclick="filterCategory(\'All\', this)">All News</div>';
+            
+            categories.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'nav-item';
+                item.textContent = `${cat.emoji} ${cat.name}`;
+                item.onclick = function() {
+                    filterCategory(cat.name, this);
+                };
+                nav.appendChild(item);
+            });
+        }
+        
+        function filterCategory(cat, element) {
+            currentCategory = cat;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            renderArticles();
+        }
+        
+        function renderArticles() {
+            let filtered = articles;
+            
+            if (currentCategory !== 'All') {
+                filtered = articles.filter(a => a.category === currentCategory);
+            }
+            
+            const grid = document.getElementById('newsGrid');
+            grid.innerHTML = filtered.map(article => `
+                <div class="news-card" onclick="openArticle(${article.id})">
+                    <div class="card-image">📰</div>
+                    <div class="card-content">
+                        <div class="card-category">${article.category}</div>
+                        <div class="card-title">${article.title}</div>
+                        <div class="card-desc">${article.desc}</div>
+                        <div class="card-meta">👁️ ${article.views || 0} | ${article.date}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function openArticle(id) {
+            const article = articles.find(a => a.id === id);
+            if (!article) return;
+            
+            article.views = (article.views || 0) + 1;
+            localStorage.setItem('articles', JSON.stringify(articles));
+            
+            document.getElementById('modalBody').innerHTML = `
+                <h1>${article.title}</h1>
+                <p style="color:#999;font-size:12px;margin:12px 0">📅 ${article.date} • 👁️ ${article.views} views</p>
+                <p style="line-height:1.8;font-size:15px">${article.content}</p>
+            `;
+            
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+        
+        function updateBreakingNews() {
+            const text = breakingNews.join(' • ');
+            document.getElementById('breakingText').textContent = text || 'No breaking news at the moment';
+        }
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+        
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+        
+        document.getElementById('search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const filtered = articles.filter(a => 
+                a.title.toLowerCase().includes(query) ||
+                a.desc.toLowerCase().includes(query)
+            );
+            
+            const grid = document.getElementById('newsGrid');
+            grid.innerHTML = filtered.map(article => `
+                <div class="news-card" onclick="openArticle(${article.id})">
+                    <div class="card-image">📰</div>
+                    <div class="card-content">
+                        <div class="card-category">${article.category}</div>
+                        <div class="card-title">${article.title}</div>
+                        <div class="card-desc">${article.desc}</div>
+                        <div class="card-meta">👁️ ${article.views || 0} | ${article.date}</div>
+                    </div>
+                </div>
+            `).join('');
+        });
+        
+        init();
+    </script>
+</body>
+</html>
